@@ -1,11 +1,11 @@
 package com.example.macierz
 
-import android.icu.lang.UCharacter.GraphemeClusterBreak.V
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import org.w3c.dom.Text
 import kotlin.random.Random
 
 
@@ -14,12 +14,14 @@ class MainActivity : AppCompatActivity() {
     var j:Int = 0;
     var arrSize = 10;
     val array = Array(arrSize, {IntArray(arrSize)});
+    var path:String =""
 
     lateinit var btnApply:Button;
     lateinit var btnFind:Button;
     lateinit var editTextValue:EditText;
     lateinit var editTextFind:EditText;
     lateinit var resultTextView:TextView;
+    lateinit var editTextNode:TextView;
 
     lateinit var editTextI:EditText;
     lateinit var btnIForward:Button;
@@ -28,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var editTextJ:EditText;
     lateinit var btnJForward:Button;
     lateinit var btnJBack:Button;
+     var startNode:Int = 0;
 
     private val NO_PARENT = -1
 
@@ -43,6 +46,7 @@ class MainActivity : AppCompatActivity() {
 
         editTextFind = findViewById(R.id.editTextValueToFind)
         editTextValue = findViewById(R.id.editTextValue);
+        editTextNode = findViewById(R.id.editTextTextPersonName);
 
         editTextI = findViewById(R.id.editTextI);
         btnIForward = findViewById(R.id.btnIForward);
@@ -51,6 +55,8 @@ class MainActivity : AppCompatActivity() {
         editTextJ = findViewById(R.id.editTextJ);
         btnJForward = findViewById(R.id.btnJForward);
         btnJBack = findViewById(R.id.btnJBack);
+
+
 
         btnIForward.setOnClickListener{
             if(i<arrSize){
@@ -88,23 +94,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnFind.setOnClickListener {
+            startNode = editTextNode.text.toString().toInt()
             dijkstra(array,editTextFind.text.toString().toInt())
+
         }
 
         editTextValue.setText(  array[i][j].toString())
     }
-
-    fun minDistance(dist: IntArray, sptSet: Array<Boolean?>): Int {
-        var min = Int.MAX_VALUE
-        var min_index = -1
-        for (v in 0 until V) if (sptSet[v] == false && dist[v] <= min) {
-            min = dist[v]
-            min_index = v
-        }
-        return min_index
-    }
-
-
 
     private fun dijkstra(
         adjacencyMatrix: Array<IntArray>,
@@ -153,6 +149,12 @@ class MainActivity : AppCompatActivity() {
         printSolution(startVertex, shortestDistances, parents)
     }
 
+    fun reverseStr(str: String): String{
+        if(str.isEmpty())
+            return str
+        return reverseStr(str.substring(1)) + str[0]
+    }
+
     private fun printSolution(
         startVertex: Int,
         distances: IntArray,
@@ -160,38 +162,41 @@ class MainActivity : AppCompatActivity() {
     ) {
         val nVertices = distances.size
         var message = "";
+        path = ""
 
         for (vertexIndex in 0 until nVertices) {
-            if (vertexIndex != startVertex) {
-                message += "\n$startVertex -> "
-                message +="$vertexIndex \t\t "
-                message += distances[vertexIndex].toString() + "\t\t"
+            if (vertexIndex != startVertex && startNode == vertexIndex) {
+                message += "\n$vertexIndex to "
+                message +="$startVertex \t\t is "
+                message += distances[vertexIndex].toString() + "\t\t path "
                 printPath(vertexIndex, parents)
+                message += reverseStr(path);
             }
         }
-        resultTextView.text = message;
-    }
+        resultTextView.text = message; 4}
+
 
     private fun printPath(
         currentVertex: Int,
         parents: IntArray
-    ) {
+    ):String {
 
         if (currentVertex == NO_PARENT) {
-            return
+            path += ""
+            return ""
         }
         printPath(parents[currentVertex], parents)
-        print("$currentVertex ")
+        path += currentVertex.toString()+ " "
+        return "$currentVertex";
     }
     fun printValue(){
         editTextValue.setText((array[i][j]).toString());
     }
 
     fun generateGraph(){
-        for(y in 0..arrSize-1)
+        for(y in 0..arrSize-1){
             for(x in 0..arrSize-1){
                array[y][x] = Random.nextInt(0,10);
             }
-        }
-    }
+        }}
 }
